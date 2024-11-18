@@ -16,11 +16,11 @@ class ProfileInfo {
   // Factory constructor to create a ProfileInfo object from JSON
   factory ProfileInfo.fromJson(Map<String, dynamic> json) {
     return ProfileInfo(
-      id: json['id'],
-      username: json['username'],
-      name: json['name'],
-      threadsProfilePictureUrl: json['threads_profile_picture_url'],
-      threadsBiography: json['threads_biography'],
+      id: json['id'] ?? '',
+      username: json['username'] ?? '',
+      name: json['name'] ?? '',
+      threadsProfilePictureUrl: json['threads_profile_picture_url'] ?? '',
+      threadsBiography: json['threads_biography'] ?? '',
     );
   }
 
