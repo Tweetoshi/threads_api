@@ -336,7 +336,7 @@ abstract class ThreadsMediaService {
     required String postId,
     List<MediaInsightFields>? fields,
   });
-  
+
   /// Checks the status of a media container.
   ///
   /// This method retrieves the current status of a media container that was created
@@ -384,7 +384,7 @@ abstract class ThreadsMediaService {
   /// final containerStatus = await threadsMediaService.getMediaContainerStatus(
   ///   containerId: '17889615691921648',
   /// );
-  /// 
+  ///
   /// if (containerStatus.status == 'FINISHED') {
   ///   // Proceed with publishing
   /// } else if (containerStatus.status == 'ERROR') {
@@ -394,7 +394,7 @@ abstract class ThreadsMediaService {
   Future<MediaContainerStatus> getMediaContainerStatus({
     required String containerId,
   });
-  
+
   /// Retrieves the publishing quota limit for a specific user by their unique user ID.
   ///
   /// This method allows you to check a user's current API usage total and quota limits
@@ -420,13 +420,62 @@ abstract class ThreadsMediaService {
   /// final quotaInfo = await threadsMediaService.getPublishingQuota(
   ///   userId: '1234567890',
   /// );
-  /// 
+  ///
   /// if (quotaInfo.quotaUsage < quotaInfo.config.quotaTotal) {
   ///   // User has not exceeded their quota, proceed with publishing
   /// }
   /// ```
   Future<PublishingQuota> getPublishingQuota({
     required String userId,
+  });
+
+  /// Searches for public Threads media by keyword.
+  ///
+  /// [query] is required. [searchType] can be 'TOP' or 'RECENT'.
+  /// [fields] specifies which fields to return.
+  ///
+  /// See: https://developers.facebook.com/docs/threads/keyword-search
+  Future<ThreadsResponse<List<MediaPost>>> searchThreadsByKeyword({
+    required String query,
+    String searchType, // 'TOP' or 'RECENT'
+    List<MediaFields>? fields,
+  });
+
+  /// Deletes a Threads post by its media object ID.
+  ///
+  /// This method allows you to delete a Threads post using its media object ID.
+  /// The user must have the `threads_delete` permission to perform this action.
+  ///
+  /// ## Parameters:
+  /// - `mediaId` (required): The unique identifier of the Threads post to delete.
+  ///
+  /// ## Returns:
+  /// - A `Future` that resolves to a `Map` containing:
+  ///   - `success`: Boolean indicating if the deletion was successful
+  ///   - `deletedId`: The ID of the deleted post
+  ///
+  /// ## Errors:
+  /// - Throws an `Exception` if the API request fails or if the user lacks
+  ///   the required permissions.
+  ///
+  /// ## API Reference:
+  /// - [Delete Posts](https://developers.facebook.com/docs/threads/posts/delete-posts)
+  ///
+  /// ## Limitations:
+  /// - The Delete endpoint has a rate limit of 100 deletes per day per account.
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final result = await threadsMediaService.deleteThread(
+  ///   mediaId: '1234567',
+  /// );
+  /// 
+  /// if (result['success']) {
+  ///   print('Successfully deleted post ${result['deletedId']}');
+  /// }
+  /// ```
+  Future<Map<String, dynamic>> deleteThread({
+    required String mediaId,
   });
 }
 
@@ -638,7 +687,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
       throw Exception('Failed to get media insights $e');
     }
   }
-  
+
   @override
   Future<MediaContainerStatus> getMediaContainerStatus({
     required String containerId,
@@ -650,13 +699,13 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
           'fields': 'status,error_message',
         },
       );
-      
+
       return MediaContainerStatus.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to get media container status: $e');
     }
   }
-  
+
   @override
   Future<PublishingQuota> getPublishingQuota({
     required String userId,
@@ -668,16 +717,61 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
           'fields': 'quota_usage,config',
         },
       );
-      
+
       final dataList = response.data['data'] as List<dynamic>;
-      
+
       if (dataList.isEmpty) {
         throw Exception('No publishing quota data returned');
       }
-      
+
       return PublishingQuota.fromJson(dataList.first as Map<String, dynamic>);
     } catch (e) {
       throw Exception('Failed to get publishing quota: $e');
+    }
+  }
+
+  @override
+  Future<ThreadsResponse<List<MediaPost>>> searchThreadsByKeyword({
+    required String query,
+    String searchType = 'TOP',
+    List<MediaFields>? fields,
+  }) async {
+    try {
+      final response = await super.get(
+        'https://graph.threads.net/v1.0/keyword_search',
+        queryParameters: {
+          'q': query,
+          'search_type': searchType,
+          'fields': getFieldsParam(fields),
+        },
+      );
+      return ThreadsResponse<List<MediaPost>>(
+        beforeCursor: response.data['paging']?['cursors']?['before'],
+        afterCursor: response.data['paging']?['cursors']?['after'],
+        data: (response.data['data'] as List)
+            .map<MediaPost>((item) => MediaPost.fromJson(item))
+            .toList(),
+      );
+    } catch (e) {
+      throw Exception('Failed to search Threads by keyword: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> deleteThread({
+    required String mediaId,
+  }) async {
+    try {
+      final response = await super.delete(
+        'https://graph.threads.net/v1.0/$mediaId',
+      );
+
+      return {
+        'success': response.data['success'] as bool,
+        'deletedId': response.data['deleted_id'] as String,
+      };
+    } catch (e) {
+      throw Exception('Failed to delete Thread: $e');
     }
   }
 }

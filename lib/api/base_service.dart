@@ -11,6 +11,11 @@ abstract class _Service {
     Map<String, dynamic> queryParameters = const {},
     Map<String, String> body = const {},
   });
+
+  Future<Response<dynamic>> delete(
+    String unencodedPath, {
+    Map<String, dynamic> queryParameters = const {},
+  });
 }
 
 abstract class BaseService implements _Service {
@@ -40,6 +45,13 @@ abstract class BaseService implements _Service {
         queryParameters: queryParameters,
         body: body,
       );
+
+  @override
+  Future<Response<dynamic>> delete(
+    String unencodedPath, {
+    Map<String, dynamic> queryParameters = const {},
+  }) async =>
+      _helper.delete(unencodedPath, queryParameters: queryParameters);
 }
 
 class ServiceHelper {
@@ -86,6 +98,25 @@ class ServiceHelper {
       return response;
     } catch (e) {
       throw Exception('Failed to post data');
+    }
+  }
+
+  Future<Response<dynamic>> delete(
+    String unencodedPath, {
+    Map<String, dynamic> queryParameters = const {},
+  }) async {
+    try {
+      final response = Dio().delete(
+        unencodedPath,
+        queryParameters: queryParameters.isEmpty
+            ? {'access_token': accessToken}
+            : queryParameters
+          ..addAll({'access_token': accessToken}),
+      );
+
+      return response;
+    } catch (e) {
+      throw Exception('Failed to delete data');
     }
   }
 }

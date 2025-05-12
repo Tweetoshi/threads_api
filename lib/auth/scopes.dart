@@ -12,7 +12,13 @@ enum Scope {
   threadsReadReplies('threads_read_replies'),
 
   /// Required for making GET calls to insights endpoints.
-  threadsManageInsights('threads_manage_insights');
+  threadsManageInsights('threads_manage_insights'),
+
+  /// Required for making GET calls to keyword search endpoints.
+  threadsKeywordSearch('threads_keyword_search'),
+
+  /// Required for making DELETE calls to delete endpoints.
+  threadsDelete('threads_delete');
 
   /// The actual string value of the scope
   final String value;
