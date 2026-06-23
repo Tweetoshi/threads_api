@@ -20,6 +20,7 @@ class MediaPost {
   final bool? isReply;
   final bool? isReplyOwnedByMe;
   final String? replyAudience;
+  final String? altText;
 
   MediaPost({
     required this.id,
@@ -41,6 +42,7 @@ class MediaPost {
     this.isReply,
     this.isReplyOwnedByMe,
     this.replyAudience,
+    this.altText,
   });
 
   // Factory constructor to create a MediaPost object from JSON
@@ -65,6 +67,7 @@ class MediaPost {
       isReply: json['is_reply'],
       isReplyOwnedByMe: json['is_reply_owned_by_me'],
       replyAudience: json['reply_audience'],
+      altText: json['alt_text'],
     );
   }
 
@@ -90,6 +93,7 @@ class MediaPost {
       'is_reply': isReply,
       'is_reply_owned_by_me': isReplyOwnedByMe,
       'reply_audience': replyAudience,
+      'alt_text': altText,
     };
   }
 }

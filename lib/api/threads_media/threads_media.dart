@@ -97,6 +97,9 @@ abstract class ThreadsMediaService {
   /// - `text` (optional): The textual content of the thread.
   /// - `imageUrl` (optional): The URL of the image to include in the thread.
   ///   This field is required if the post includes media content.
+  /// - `altText` (optional): The accessibility label / description for the
+  ///   image or video in the post. Only applies to image and video containers
+  ///   (including carousel item containers).
   /// - `inReplyToId` (optional): The ID of the thread that this post is replying to.
   /// - `quotePostId` (optional): The ID of the post being quoted.
   /// - `mediaType` (required): The type of media included in the post (e.g.,
@@ -133,6 +136,7 @@ abstract class ThreadsMediaService {
     String? text,
     String? imageUrl,
     String? videoUrl,
+    String? altText,
     String? inReplyToId,
     String? quotePostId,
     MediaType mediaType,
@@ -532,6 +536,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
       String? text,
       String? imageUrl,
       String? videoUrl,
+      String? altText,
       String? inReplyToId,
       MediaType mediaType = MediaType.textPost,
       String? quotePostId,
@@ -546,6 +551,7 @@ class _ThreadsMediaService extends BaseService implements ThreadsMediaService {
             'text': text,
             'image_url': imageUrl,
             'video_url': videoUrl,
+            'alt_text': altText,
             'quote_post_id': quotePostId,
             'reply_to_id': inReplyToId,
             'is_carousel_item': isCarouselItem,

@@ -20,6 +20,7 @@ enum MediaFields {
   isReplyOwnedByMe,
   hideStatus,
   replyAudience,
+  altText,
 }
 
 extension MediaFieldsExtension on MediaFields {
@@ -65,6 +66,8 @@ extension MediaFieldsExtension on MediaFields {
         return 'hide_status';
       case MediaFields.replyAudience:
         return 'reply_audience';
+      case MediaFields.altText:
+        return 'alt_text';
       default:
         return 'id';
     }
